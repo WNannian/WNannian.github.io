@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人主页</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #0a0e14;
+    --bg-secondary: #12171f;
+    --bg-card: #161c26;
+    --border: #1e2a3a;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --accent: #39d2c0;
+    --accent-blue: #58a6ff;
+    --accent-purple: #a371f7;
+    --gradient: linear-gradient(135deg, #39d2c0 0%, #58a6ff 100%);
+    --radius: 12px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .bg-grid {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      linear-gradient(rgba(57,210,192,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(57,210,192,.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 70%);
+  }
+
+  .bg-glow {
+    position: fixed; width: 600px; height: 600px;
+    border-radius: 50%; filter: blur(180px); opacity: .12;
+    pointer-events: none; z-index: 0;
+  }
+  .bg-glow.tl { top: -200px; left: -200px; background: var(--accent); }
+  .bg-glow.br { bottom: -200px; right: -200px; background: var(--accent-blue); }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 40px; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(12px);
+    background: rgba(10,14,20,.7);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px; font-weight: 600;
+    background: var(--gradient);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  nav .nav-links { display: flex; gap: 32px; list-style: none; }
+  nav .nav-links a {
+    color: var(--text-secondary); text-decoration: none;
+    font-size: 14px; font-weight: 500; transition: color .2s;
+  }
+  nav .nav-links a:hover { color: var(--text-primary); }
+
+  .main { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding-top: 64px;
+  }
+  .hero .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 500;
+    color: var(--accent);
+    border: 1px solid rgba(57,210,192,.3);
+    background: rgba(57,210,192,.06);
+    padding: 4px 14px; border-radius: 20px;
+    margin-bottom: 28px; letter-spacing: .5px;
+  }
+  .hero h1 {
+    font-size: clamp(40px, 7vw, 72px);
+    font-weight: 700; line-height: 1.1;
+    letter-spacing: -1.5px; margin-bottom: 16px;
+  }
+  .hero h1 span {
+    background: var(--gradient);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero .subtitle {
+    font-size: 20px; color: var(--text-secondary);
+    font-weight: 400; margin-bottom: 36px; max-width: 520px;
+  }
+  .hero .actions { display: flex; gap: 16px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 28px; border-radius: 8px;
+    font-size: 15px; font-weight: 600;
+    text-decoration: none; cursor: pointer; border: none;
+    transition: all .2s; font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: #0a0e14; }
+  .btn-primary:hover { background: #4ee0ce; transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent; color: var(--text-primary);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--text-secondary); }
+
+  section { padding: 100px 0; }
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 500;
+    color: var(--accent); text-transform: uppercase;
+    letter-spacing: 2px; margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 36px; font-weight: 700;
+    letter-spacing: -.5px; margin-bottom: 48px;
+  }
+
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .about-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px;
+  }
+  .about-card.full { grid-column: 1 / -1; }
+  .about-card h3 {
+    font-size: 16px; font-weight: 600; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .about-card h3 .icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .icon-green { background: rgba(57,210,192,.12); }
+  .icon-blue { background: rgba(88,166,255,.12); }
+  .icon-purple { background: rgba(163,113,247,.12); }
+  .about-card p, .about-card li {
+    font-size: 15px; color: var(--text-secondary); line-height: 1.7;
+  }
+  .about-card ul { list-style: none; }
+  .about-card ul li::before {
+    content: '\25B9'; color: var(--accent); margin-right: 8px;
+  }
+
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .skill-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 500;
+    padding: 6px 14px; border-radius: 6px;
+    background: var(--bg-secondary); border: 1px solid var(--border);
+    color: var(--text-primary);
+  }
+
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 0; top: 4px; bottom: 4px;
+    width: 1px; background: var(--border);
+  }
+  .timeline-item { position: relative; margin-bottom: 32px; }
+  .timeline-item::before {
+    content: ''; position: absolute; left: -28px; top: 6px;
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg-primary);
+  }
+  .timeline-item .period {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: var(--accent); margin-bottom: 4px;
+  }
+  .timeline-item h4 { font-size: 17px; font-weight: 600; }
+  .timeline-item p { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .contact-info {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 32px;
+  }
+  .contact-info h3 { font-size: 20px; font-weight: 600; margin-bottom: 24px; }
+  .contact-item {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 20px; font-size: 15px; color: var(--text-secondary);
+  }
+  .contact-item .ci-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--bg-secondary); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .contact-item strong { color: var(--text-primary); display: block; }
+  .qr-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+  }
+  .qr-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+  .qr-code {
+    width: 160px; height: 160px; background: #fff;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qr-code svg { width: 100%; height: 100%; }
+  .qr-card .qr-label {
+    margin-top: 16px; font-size: 14px; color: var(--text-secondary);
+  }
+
+  footer {
+    text-align: center; padding: 40px 24px;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary); font-size: 13px;
+  }
+
+  @media (max-width: 640px) {
+    nav { padding: 0 20px; }
+    nav .nav-links { display: none; }
+    .hero h1 { font-size: 36px; }
+    .hero .subtitle { font-size: 16px; }
+    .about-grid, .contact-grid { grid-template-columns: 1fr; }
+    section { padding: 64px 0; }
+    .section-title { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow tl"></div>
+<div class="bg-glow br"></div>
+
+<nav>
+  <div class="logo">&lt;Portfolio /&gt;</div>
+  <ul class="nav-links">
+    <li><a href="#about">关于我</a></li>
+    <li><a href="#experience">经历</a></li>
+    <li><a href="#contact">联系方式</a></li>
+  </ul>
+</nav>
+
+<div class="main">
+
+  <section class="hero">
+    <div class="tag">AVAILABLE FOR WORK</div>
+    <h1>你好，我是<br><span>张三</span></h1>
+    <p class="subtitle">
+      资深前端工程师，专注于构建高性能、优雅的 Web 应用。
+      热爱技术探索与开源社区。
+    </p>
+    <div class="actions">
+      <a href="#contact" class="btn btn-primary">联系我</a>
+      <a href="#about" class="btn btn-outline">了解更多</a>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="section-label">About</div>
+    <h2 class="section-title">关于我</h2>
+
+    <div class="about-grid">
+      <div class="about-card full">
+        <h3><span class="icon icon-green">&#9997;</span> 个人简介</h3>
+        <p>
+          拥有 6 年前端开发经验，目前就职于某头部互联网公司，负责核心业务线的前端架构设计。
+          擅长 React / Vue 生态，对工程化、性能优化、微前端有深入实践。
+          追求代码质量，热爱用技术解决真实世界的问题。
+        </p>
+      </div>
+
+      <div class="about-card">
+        <h3><span class="icon icon-blue">&#9881;</span> 技术栈</h3>
+        <div class="skill-tags">
+          <span class="skill-tag">TypeScript</span>
+          <span class="skill-tag">React</span>
+          <span class="skill-tag">Vue</span>
+          <span class="skill-tag">Next.js</span>
+          <span class="skill-tag">Node.js</span>
+          <span class="skill-tag">Tailwind CSS</span>
+          <span class="skill-tag">Webpack</span>
+          <span class="skill-tag">Vite</span>
+          <span class="skill-tag">GraphQL</span>
+          <span class="skill-tag">Docker</span>
+        </div>
+      </div>
+
+      <div class="about-card">
+        <h3><span class="icon icon-purple">&#9733;</span> 核心能力</h3>
+        <ul>
+          <li>大型 SPA 应用架构设计</li>
+          <li>前端性能优化及监控体系搭建</li>
+          <li>组件库及工程设计</li>
+          <li>跨团队技术方案评审</li>
+          <li>开源项目维护及技术分享</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="section-label">Experience</div>
+    <h2 class="section-title">工作经历</h2>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="period">2022 — 至今</div>
+        <h4>高级前端工程师 · ABC 科技</h4>
+        <p>负责电商平台前端架构设计，主导微前端改造，支撑日均千万级 UV。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="period">2020 — 2022</div>
+        <h4>前端工程师 · XYZ 网络</h4>
+        <p>负责 SaaS 产品前端开发，搭建组件库与 CI/CD 流水线，提升团队交付效率 40%。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="period">2018 — 2020</div>
+        <h4>初级前端工程师 · Startup</h4>
+        <p>参与多个从 0 到 1 的产品研发，独立负责移动端 H5 适配方案设计与落地。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="section-label">Contact</div>
+    <h2 class="section-title">联系我</h2>
+
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>联系方式</h3>
+        <div class="contact-item">
+          <div class="ci-icon">&#9993;</div>
+          <div><strong>邮箱</strong>zhangsan@example.com</div>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">&#9743;</div>
+          <div><strong>电话</strong>+86 138-xxxx-xxxx</div>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">&#9962;</div>
+          <div><strong>GitHub</strong>github.com/zhangsan</div>
+        </div>
+        <div class="contact-item">
+          <div class="ci-icon">&#128101;</div>
+          <div><strong>微信</strong>zhangsan_dev</div>
+        </div>
+      </div>
+
+      <div class="qr-card">
+        <h3>扫码添加微信</h3>
+        <div class="qr-code">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="10" width="30" height="30" rx="2" fill="#0a0e14"/>
+            <rect x="14" y="14" width="6" height="6" fill="#fff"/>
+            <rect x="24" y="14" width="6" height="6" fill="#fff"/>
+            <rect x="30" y="14" width="6" height="6" fill="#fff"/>
+            <rect x="14" y="24" width="6" height="6" fill="#fff"/>
+            <rect x="30" y="24" width="6" height="6" fill="#fff"/>
+            <rect x="14" y="30" width="6" height="6" fill="#fff"/>
+            <rect x="24" y="30" width="6" height="6" fill="#fff"/>
+            <rect x="30" y="30" width="6" height="6" fill="#fff"/>
+
+            <rect x="60" y="10" width="30" height="30" rx="2" fill="#0a0e14"/>
+            <rect x="64" y="14" width="6" height="6" fill="#fff"/>
+            <rect x="74" y="14" width="6" height="6" fill="#fff"/>
+            <rect x="80" y="14" width="6" height="6" fill="#fff"/>
+            <rect x="64" y="24" width="6" height="6" fill="#fff"/>
+            <rect x="80" y="24" width="6" height="6" fill="#fff"/>
+            <rect x="64" y="30" width="6" height="6" fill="#fff"/>
+            <rect x="74" y="30" width="6" height="6" fill="#fff"/>
+            <rect x="80" y="30" width="6" height="6" fill="#fff"/>
+
+            <rect x="10" y="60" width="30" height="30" rx="2" fill="#0a0e14"/>
+            <rect x="14" y="64" width="6" height="6" fill="#fff"/>
+            <rect x="24" y="64" width="6" height="6" fill="#fff"/>
+            <rect x="30" y="64" width="6" height="6" fill="#fff"/>
+            <rect x="14" y="74" width="6" height="6" fill="#fff"/>
+            <rect x="30" y="74" width="6" height="6" fill="#fff"/>
+            <rect x="14" y="80" width="6" height="6" fill="#fff"/>
+            <rect x="24" y="80" width="6" height="6" fill="#fff"/>
+            <rect x="30" y="80" width="6" height="6" fill="#fff"/>
+
+            <rect x="44" y="44" width="12" height="12" rx="1" fill="#0a0e14"/>
+            <rect x="46" y="46" width="3" height="3" fill="#fff"/>
+            <rect x="51" y="46" width="3" height="3" fill="#fff"/>
+            <rect x="46" y="51" width="3" height="3" fill="#fff"/>
+            <rect x="51" y="51" width="3" height="3" fill="#fff"/>
+          </svg>
+        </div>
+        <p class="qr-label">微信扫一扫，添加好友</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <p>&copy; 2026 张三 · 保持热爱，奔赴山海</p>
+</footer>
+
+</body>
+</html>
